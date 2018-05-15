@@ -44,7 +44,8 @@ export async function initIntent(obj: JsonIntent, dir: string) {
 export async function initExpressions(obj: JsonIntent, dir: string) {
     let expressions: Expression[] = [];
     for (let it of obj.expressions) {
-        await PapaparsePromise(dir, it, expressions);
+        if (fs.existsSync(dir + "/" + it.file))
+            await PapaparsePromise(dir, it, expressions);
     }
     return expressions;
 }

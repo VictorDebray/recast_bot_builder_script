@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { buildBotIntents, checkBotExists } from './bot_builder';
 import { RecastRequest } from './request/RecastRequest';
 
-let configDir = __dirname + "/bot_config";
+let configDir = __dirname + "/chatbot_conf";
 let config = JSON.parse(fs.readFileSync(configDir + '/config.json', 'utf8'));
 
 // BOT PARSING CONF
