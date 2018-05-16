@@ -40,7 +40,7 @@ for (let botDir of config.bots) {
         process.exit(1);
     }
     let BotReq = new RecastRequest(config.user_slug, botConfig.dev_token);
-    checkBotExists(BotReq, botConfig.name).then(() => {
+    checkBotExists(BotReq, botConfig.name).then((data) => {
         let botIntentsConfigDir = botConfigDir + "/" + botConfig.intents_dir;
         let botIntentsConfig = JSON.parse(fs.readFileSync(botIntentsConfigDir + "/intents.json", 'utf8'));
 
@@ -48,10 +48,14 @@ for (let botDir of config.bots) {
         console.log(route);
         buildBotIntents(BotReq, botConfig.name, botIntentsConfig.intents, botIntentsConfigDir)
             .then(() => {
-                console.log("Bot successfully buit");
+                console.log("Bot script successfully executed");
             })
             .catch(() => {
                 console.error("Intent could not be created.")
             });
-    }).catch(() => console.error("program shut down"));
+    }).catch((data) => {
+        console.error(data.message);
+        if (data.response.status == 401)
+            console.error("Wrong dev-token or you do not have writes to access bot.");
+    });
 }

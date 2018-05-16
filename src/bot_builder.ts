@@ -6,15 +6,26 @@ import { Expression } from './models/Expression';
 
 
 export async function checkBotExists(RecastReq: RecastRequest, botSlug: string) {
-    await RecastReq.getBot(botSlug)
-        .then(() => console.log("Bot exists."))
-        .catch(() => console.error("Create bot first."));
+    return new Promise((resolve, reject) => {
+        RecastReq.getBot(botSlug)
+            .then((data) => {
+                console.log("Bot exists.");
+                resolve(data);
+            })
+            .catch((data) => {
+                reject(data);
+            });
+    });
 }
 
 async function checkIntentExists(RecastReq: RecastRequest, botSlug: string, intentSlug: string) {
     return await RecastReq.getIntent(botSlug, intentSlug)
-        .then(() => { return true; })
-        .catch(() => { return false; })
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return false;
+        })
 }
 
 export async function buildBotIntents(RecastReq: RecastRequest, botSlug: string, botIntents, dir: string) {
@@ -24,22 +35,27 @@ export async function buildBotIntents(RecastReq: RecastRequest, botSlug: string,
 
         if (!await checkIntentExists(RecastReq, botSlug, intentConfig.name)) {
             let intentObj: Intent = await initIntent(intentConfig, intentConfigDir);
-            if (await RecastReq.createIntent(botSlug, intentObj) != 200) {
-                process.exit(1);
+            try {
+                let response = await RecastReq.createIntent(botSlug, intentObj);
+                console.log(response['status'] + " Intent " + intentConfig.name + " correctly created");
             }
-            console.log("Intent " + intentConfig.name + " correctly created");
+            catch(e) {
+                console.error(e.message);
+            }
         } else {
             console.log("Starting to complete expressions of intent " + intentConfig.name);
             if (!fs.existsSync(intentConfigDir + "/add")) {
                 console.error("Please create a `add` folder in intent directory `" + intentConfig.name + "`");
-                process.exit(1);
-            }
-            let expressionsObj = {
-                expressions: await initExpressions(intentConfig, intentConfigDir + "/add")
-            };
-            console.log(JSON.stringify(expressionsObj));
-            if (await RecastReq.createBulkExpressions(botSlug, intentConfig.name, expressionsObj) != 200) {
-                process.exit(1)
+            } else {
+                let expressionsObj = {
+                    expressions: await initExpressions(intentConfig, intentConfigDir + "/add")
+                };
+                try {
+                    let response = await RecastReq.createBulkExpressions(botSlug, intentConfig.name, expressionsObj);
+                    console.log(response['status'] + " Bulk expression creation for " + intentConfig.name + " correctly executed");
+                } catch (e) {
+                    console.error(e.message);
+                }
             }
         }
     }

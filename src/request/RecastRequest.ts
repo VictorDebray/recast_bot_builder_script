@@ -25,18 +25,18 @@ export class RecastRequest {
     getBot(botSlug: string) {
         return new Promise((resolve, reject) => {
             this.axiosInstance.get("/bots/" + botSlug)
-                .then(() => resolve())
-                .catch(() => reject());
+                .then((data) => resolve(data))
+                .catch((data) => reject(data));
         });
     }
 
     createIntent(botSlug: string, intentObj: Intent) {
         return new Promise((resolve, reject) => {
             this.axiosInstance.post("/bots/" + botSlug + "/intents", intentObj)
-                .then((data) => resolve(data.status))
+                .then((data) => resolve(data))
                 .catch((data) => {
                     console.error(data.message);
-                    reject(data.status);
+                    reject(data);
                 });
         });
     }
@@ -45,10 +45,9 @@ export class RecastRequest {
         return new Promise((resolve, reject) => {
             this.axiosInstance.post("/bots/" + botSlug + "/intents/" + intentSlug
                 + "/expressions/bulk_create", expressions)
-                .then((data) => resolve(data.status))
+                .then((data) => resolve(data))
                 .catch((data) => {
-                    console.error(data.message);
-                    reject(data.status);
+                    reject(data);
                 });
         });
     }
