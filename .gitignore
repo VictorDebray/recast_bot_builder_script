@@ -66,5 +66,4 @@ typings/
 
 build/
 package-lock.json
-src/bot_config
 
